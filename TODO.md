@@ -1,0 +1,2 @@
+- [ ] Change import from BingSearch to LLMChat in Brain/brain.py
+- [x] Change instantiation from BingSearch to LLMChat with the same parameters
