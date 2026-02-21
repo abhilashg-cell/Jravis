@@ -1,4 +1,5 @@
 import threading
+from Brain.gpt_brain import ask_gpt
 from internet_check import is_Online
 from Alert import Alert
 from Data.DLG_Data import online_dlg,offline_dlg

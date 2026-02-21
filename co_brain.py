@@ -284,28 +284,25 @@ def check_inputs():
                 if success:
                     jarvis_speak(msg, mood="success")
                 continue
-            
             # ============================================
             # PRIORITY 11: AUTOMATION
             # ============================================
             if "play music" in cmd or "weather" in cmd:
                 Auto_main_brain(cmd)
                 continue
-            
+
             # ============================================
-            # PRIORITY 12: CHAT (Explicit Only)
+            # PRIORITY 12: GPT FALLBACK (Default)
             # ============================================
-            chat_triggers = ["talk", "chat", "explain", "help", "who are you", "tell me"]
-            if any(trigger in cmd for trigger in chat_triggers):
-                print("[DEBUG] Entering chat brain")
+            print("[DEBUG] Sending to GPT brain")
+
+            try:
                 response = Main_Brain(cmd)
                 jarvis_speak(response)
-                continue
-            
-            # ============================================
-            # DEFAULT: SILENCE
-            # ============================================
-            print(f"[DEBUG] Unknown command '{cmd}' - Remaining silent.")
+            except Exception as e:
+                print(f"[ERROR] GPT brain failed: {e}")
+
+            continue
 
 def Jarvis():
     clear_file()

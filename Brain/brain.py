@@ -1,30 +1,46 @@
-# from webscout import PhindSearch as brain
+import requests
+import json
 
+OLLAMA_URL = "http://localhost:11434/api/generate"
+MODEL_NAME = "gemma2:latest"
 
-# ai = brain(
-#     is_conversation=True,
-#     max_tokens=800,
-#     timeout=30,
-#     intro='J.A.R.V.I.S',
-#     filepath=r"C:\Users\chatu\Desktop\J.A.R.V.I.S\chat_hystory.txt",
-#     update_file=True,
-#     proxies={},
-#     history_offset=10250,
-#     act=None,
-# )
+SYSTEM_PROMPT = """
+You are J.A.R.V.I.S, an intelligent AI assistant.
 
-# def Main_Brain(text):
-#     r = ai.chat(text)
-#     return r 
+Always respond ONLY in valid JSON format like this:
 
-from webscout import LLMChat
-from os import getcwd
+{
+  "intent": "general_chat",
+  "response": "your reply here"
+}
+
+Do not add explanations.
+Do not add markdown.
+Return only valid JSON.
+"""
 
 def Main_Brain(text):
-    chat_history_path = f"{getcwd()}\\chat_hystory.txt"
-    ai = LLMChat(is_conversation=True, filepath=chat_history_path)
+    try:
+        payload = {
+            "model": MODEL_NAME,
+            "prompt": f"{SYSTEM_PROMPT}\n\nUser: {text}",
+            "stream": False
+        }
 
-    res = ai.chat(text) # internel stream is not available for this Privider
+        response = requests.post(OLLAMA_URL, json=payload)
+        result = response.json()
 
-    return res
+        raw_reply = result.get("response", "").strip()
 
+        # Extract JSON safely
+        start = raw_reply.find("{")
+        end = raw_reply.rfind("}") + 1
+        json_text = raw_reply[start:end]
+
+        parsed = json.loads(json_text)
+
+        return parsed.get("response", "I could not understand that.")
+
+    except Exception as e:
+        print(f"[OLLAMA ERROR]: {e}")
+        return "Sorry sir, I encountered an error."
